@@ -4,7 +4,7 @@ var $status = $("#status");
 var $fen = $("#fen");
 var $pgn = $("#pgn");
 let $history = document.getElementById("history");
-var greenSquareColor = "#23cf23";
+var selectableSquareColor = "#23cf23";
 
 function onDragStart(source, piece, position, orientation) {
   if (game.game_over()) return false;
@@ -48,16 +48,16 @@ function getColorFromLetter(letter) {
   return "";
 }
 
-function removeGreenSquares() {
+function removeSelectableSquares() {
   // $('#chessboard .square-55d63').css('background', '')
   // $('#chessboard .square-55d63').css('opacity', '1')
   $("#chessboard .square-55d63").css("border", "none");
 }
 
-function greenSquares(square) {
+function selectableSquares(square) {
   var $square = $("#chessboard .square-" + square);
 
-  var background = greenSquareColor;
+  var background = selectableSquareColor;
 
   // $square.css('background', background)
   // $square.css('opacity', 0.6)
@@ -74,6 +74,8 @@ function onDrop(source, target) {
 
   // illegal move
   if (move === null) return "snapback";
+
+  updateStatus();
 }
 
 function onMouseoverSquare(square, piece) {
@@ -87,25 +89,22 @@ function onMouseoverSquare(square, piece) {
   if (moves.length === 0) return;
 
   // highlight the square they moused over
-  if (!canConfirm) {
-    greenSquares(square);
+  selectableSquares(square);
 
-    // highlight the possible squares for this piece
-    for (var i = 0; i < moves.length; i++) {
-      greenSquares(moves[i].to);
-    }
+  // highlight the possible squares for this piece
+  for (var i = 0; i < moves.length; i++) {
+    selectableSquares(moves[i].to);
   }
 }
 
 function onMouseoutSquare(square, piece) {
-  removeGreenSquares();
+  removeSelectableSquares();
 }
 
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 function onSnapEnd() {
-  // board.position(game.fen());
-  // canConfirm = true;
+  board.position(game.fen());
 }
 
 function updateStatus() {
@@ -189,6 +188,7 @@ function updateStatus() {
     let newMsg = document.createElement("li");
     newMsg.appendChild(document.createTextNode(msgContent));
     $history.appendChild(newMsg);
+    newMsg.scrollIntoView();
   }
 }
 
@@ -202,4 +202,7 @@ var config = {
   onSnapEnd: onSnapEnd,
 };
 board = Chessboard("chessboard", config);
+
+$("#startNewGame").on("click", board.start);
+
 updateStatus();
