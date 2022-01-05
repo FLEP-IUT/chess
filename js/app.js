@@ -74,8 +74,6 @@ function onDrop(source, target) {
 
   // illegal move
   if (move === null) return "snapback";
-
-  updateStatus();
 }
 
 function onMouseoverSquare(square, piece) {
@@ -89,11 +87,13 @@ function onMouseoverSquare(square, piece) {
   if (moves.length === 0) return;
 
   // highlight the square they moused over
-  greenSquares(square);
+  if (!canConfirm) {
+    greenSquares(square);
 
-  // highlight the possible squares for this piece
-  for (var i = 0; i < moves.length; i++) {
-    greenSquares(moves[i].to);
+    // highlight the possible squares for this piece
+    for (var i = 0; i < moves.length; i++) {
+      greenSquares(moves[i].to);
+    }
   }
 }
 
@@ -104,7 +104,8 @@ function onMouseoutSquare(square, piece) {
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 function onSnapEnd() {
-  board.position(game.fen());
+  // board.position(game.fen());
+  // canConfirm = true;
 }
 
 function updateStatus() {
@@ -201,7 +202,4 @@ var config = {
   onSnapEnd: onSnapEnd,
 };
 board = Chessboard("chessboard", config);
-
-$("#startNewGame").on("click", board.start);
-
 updateStatus();
