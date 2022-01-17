@@ -52,9 +52,12 @@ function getColorFromLetter(letter) {
 }
 
 function removeSelectableSquares() {
-  // $('#chessboard .square-55d63').css('background', '')
-  // $('#chessboard .square-55d63').css('opacity', '1')
-  $("#chessboard .square-55d63").css("border", "none");
+  const id = document.getElementById("chessboard");
+  const squares = id.getElementsByClassName("square-55d63");
+  for (let square of squares) {
+    square.style.border = "none";
+  }
+  // $("#chessboard .square-55d63").css("border", "none");
 }
 
 function selectableSquares(_square) {
@@ -189,7 +192,7 @@ function updateStatus() {
   }
 }
 
-var config = {
+const config = {
   draggable: true,
   position: "start",
   onDragStart: onDragStart,
