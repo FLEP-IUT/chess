@@ -69,12 +69,22 @@ function selectableSquares(_square) {
 }
 
 function onDrop(source, target) {
-  // Regarde si le déplacement est possible
   const move = game.move({
     from: source,
     to: target,
     promotion: "q", // NOTE: Tjrs mettre au rang de reine par simplicité ?
   });
+
+
+
+  if (game.in_checkmate() || game.in_draw()) {
+    const newGameButton = document.getElementById("newGame");
+    newGameButton.style.display = "block";
+    newGameButton.addEventListener("click", () => {
+      board.start();
+      newGameButton.style.display = "none";
+    });
+  }
 
   // Déplacement impossible
   if (move === null) return "snapback";
@@ -136,54 +146,54 @@ function updateStatus() {
   }
 
   $status.innerHTML = status;
-  if (game.history({ verbose: true }).length > 0) {
-    const currentTurn = game.history({ verbose: true })[
-      game.history({ verbose: true }).length - 1
-    ];
+  if (game.history({verbose: true}).length > 0) {
+    const currentTurn = game.history({verbose: true})[
+    game.history({verbose: true}).length - 1
+        ];
     const destinationSquare = currentTurn.to,
-      originSquare = currentTurn.from;
+        originSquare = currentTurn.from;
     const currentPlayer = getColorFromLetter(currentTurn.color),
-      currentPiece = getLabelFromPieces(currentTurn.piece);
+        currentPiece = getLabelFromPieces(currentTurn.piece);
     const dateOfToday = new Date();
     const currentDate =
-      "(" +
-      dateOfToday.getDate() +
-      "/" +
-      (dateOfToday.getMonth() + 1) +
-      "/" +
-      dateOfToday.getFullYear() +
-      " - " +
-      dateOfToday.getHours() +
-      "h" +
-      dateOfToday.getMinutes() +
-      ")";
+        "(" +
+        dateOfToday.getDate() +
+        "/" +
+        (dateOfToday.getMonth() + 1) +
+        "/" +
+        dateOfToday.getFullYear() +
+        " - " +
+        dateOfToday.getHours() +
+        "h" +
+        dateOfToday.getMinutes() +
+        ")";
     let msgContent;
     if (!currentTurn.captured) {
       msgContent =
-        "Le joueur " +
-        currentPlayer +
-        " a bougé " +
-        currentPiece +
-        " de la case " +
-        originSquare +
-        " vers " +
-        destinationSquare +
-        " - " +
-        currentDate;
+          "Le joueur " +
+          currentPlayer +
+          " a bougé " +
+          currentPiece +
+          " de la case " +
+          originSquare +
+          " vers " +
+          destinationSquare +
+          " - " +
+          currentDate;
     } else {
       const currentPieceCaptured = getLabelFromPieces(currentTurn.captured),
-        currentEnemy = getColorFromLetter(
-          getEnemyFromLetter(currentTurn.color)
-        );
+          currentEnemy = getColorFromLetter(
+              getEnemyFromLetter(currentTurn.color)
+          );
       msgContent =
-        "Le joueur " +
-        currentPlayer +
-        " a pris " +
-        currentPieceCaptured +
-        " au joueur " +
-        currentEnemy +
-        " sur la case " +
-        destinationSquare;
+          "Le joueur " +
+          currentPlayer +
+          " a pris " +
+          currentPieceCaptured +
+          " au joueur " +
+          currentEnemy +
+          " sur la case " +
+          destinationSquare;
     }
     let newMsg = document.createElement("li");
     newMsg.appendChild(document.createTextNode(msgContent));
