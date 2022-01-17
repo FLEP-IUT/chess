@@ -1,12 +1,17 @@
-var board = null;
-var game = new Chess();
-var $status = $("#status");
-var $fen = $("#fen");
-var $pgn = $("#pgn");
-let $history = document.getElementById("history");
-var selectableSquareColor = "#23cf23";
+/**
+ * MEMO
+ * // Cavalier knight
+ * Fou bishop
+ * rook tour
+ * pawn pion
+ */
 
-function onDragStart(source, piece, position, orientation) {
+let board = null;
+const game = new Chess();
+const $status = document.getElementById("status");
+let $history = document.getElementById("history");
+
+function onDragStart(source, piece) {
   if (game.game_over()) return false;
 
   if (
@@ -16,8 +21,6 @@ function onDragStart(source, piece, position, orientation) {
     return false;
   }
 }
-
-// Cavalier knight, Fou bishop, rook tour, pawn pion
 
 function getLabelFromPieces(pieces) {
   switch (pieces) {
@@ -54,63 +57,57 @@ function removeSelectableSquares() {
   $("#chessboard .square-55d63").css("border", "none");
 }
 
-function selectableSquares(square) {
-  var $square = $("#chessboard .square-" + square);
-
-  var background = selectableSquareColor;
-
-  // $square.css('background', background)
-  // $square.css('opacity', 0.6)
-  $square.css("border", "4px solid red");
+function selectableSquares(_square) {
+  const square = document.getElementById("chessboard");
+  const squares = square.getElementsByClassName("square-" + _square);
+  for (let item of squares) {
+    item.style.border = "4px solid red";
+  }
 }
 
 function onDrop(source, target) {
-  // see if the move is legal
-  var move = game.move({
+  // Regarde si le déplacement est possible
+  const move = game.move({
     from: source,
     to: target,
-    promotion: "q", // NOTE: always promote to a queen for example simplicity
+    promotion: "q", // NOTE: Tjrs mettre au rang de reine par simplicité ?
   });
 
-  // illegal move
+  // Déplacement impossible
   if (move === null) return "snapback";
 
   updateStatus();
+  board.flip();
 }
 
-function onMouseoverSquare(square, piece) {
-  // get list of possible moves for this square
-  var moves = game.moves({
+function onMouseoverSquare(square) {
+  // Récupère la liste des différents déplacements possibles
+  const moves = game.moves({
     square: square,
     verbose: true,
   });
 
-  // exit if there are no moves available for this square
+  // On return rien si nous n'avons aucun mouvement disponibles
   if (moves.length === 0) return;
 
-  // highlight the square they moused over
+  // Ici c'est qu'on a des cases à mettre en surbrillance
+  // On met la case ou le pion se trouve en surbrillance
   selectableSquares(square);
 
-  // highlight the possible squares for this piece
-  for (var i = 0; i < moves.length; i++) {
+  // Et toutes celles ou l'on peut se déplacer
+  for (let i = 0; i < moves.length; i++) {
     selectableSquares(moves[i].to);
   }
 }
 
-function onMouseoutSquare(square, piece) {
+function onMouseoutSquare() {
   removeSelectableSquares();
 }
 
-// update the board position after the piece snap
-// for castling, en passant, pawn promotion
-function onSnapEnd() {
-  board.position(game.fen());
-}
-
 function updateStatus() {
-  var status = "";
+  let status;
 
-  var moveColor = "Blanc";
+  let moveColor = "Blanc";
   if (game.turn() === "b") {
     moveColor = "Noir";
   }
@@ -135,7 +132,7 @@ function updateStatus() {
     }
   }
 
-  $status.html(status);
+  $status.innerHTML = status;
   if (game.history({ verbose: true }).length > 0) {
     const currentTurn = game.history({ verbose: true })[
       game.history({ verbose: true }).length - 1
@@ -199,10 +196,7 @@ var config = {
   onDrop: onDrop,
   onMouseoutSquare: onMouseoutSquare,
   onMouseoverSquare: onMouseoverSquare,
-  onSnapEnd: onSnapEnd,
 };
 board = Chessboard("chessboard", config);
-
-$("#startNewGame").on("click", board.start);
 
 updateStatus();
