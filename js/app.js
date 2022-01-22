@@ -13,11 +13,13 @@ let $history = document.getElementById("history");
 const colorTable = {
   "w": {
     enemy: "b",
-    label: "Blanc"
+    label: "Blanc",
+    color: "White"
   },
   "b": {
     enemy: "w",
-    label: "Noir"
+    label: "Noir",
+    color: "Black"
   }
 }
 
@@ -73,8 +75,12 @@ function getEnemyFromLetter(letter) {
   return colorTable[letter].enemy
 }
 
-function getColorFromLetter(letter) {
+function getLabelFromLetter(letter) {
   return colorTable[letter].label;
+}
+
+function getColorFromLetter(letter) {
+  return colorTable[letter].color;
 }
 
 function removeSelectableSquares() {
@@ -125,7 +131,7 @@ window.onload = () => {
   });
 
   confirmButton.addEventListener("click", () => {
-    if (game.in_checkmate() || game.in_draw() || true) {
+    if (game.in_checkmate() || game.in_draw()) {
       const newGameButton = document.getElementById("newGame");
       newGameButton.style.display = "block";
     }
@@ -154,6 +160,14 @@ function onDrop(source, target) {
       const undoButton = document.getElementById("undoButton");
       if (move["captured"] === undefined) {
         undoButton.style.display = "block";
+      } else {
+        console.log(move)
+        const pieceCaptured = move.captured;
+        const colorCaptured = getEnemyFromLetter(move.color);
+        const pieceToAdd = document.createElement("li");
+        const takenPiecesList = document.getElementById("takenPiecesList"+getColorFromLetter(move.color));
+        pieceToAdd.innerHTML = "<img src='img/chesspieces/wikipedia/"+colorCaptured+pieceCaptured.toUpperCase()+".png' />";
+        takenPiecesList.appendChild(pieceToAdd);
       }
 
       const confirmButton = document.getElementById("confirmButton");
@@ -197,7 +211,7 @@ function updateStatus() {
         ];
     const destinationSquare = currentTurn.to,
         originSquare = currentTurn.from;
-    const currentPlayer = getColorFromLetter(currentTurn.color),
+    const currentPlayer = getLabelFromLetter(currentTurn.color),
         currentPiece = getLabelFromPieces(currentTurn.piece);
     const dateOfToday = new Date();
     const currentDate =
@@ -227,7 +241,7 @@ function updateStatus() {
           currentDate;
     } else {
       const currentPieceCaptured = getLabelFromPieces(currentTurn.captured),
-          currentEnemy = getColorFromLetter(
+          currentEnemy = getLabelFromLetter(
               getEnemyFromLetter(currentTurn.color)
           );
       msgContent =
