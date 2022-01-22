@@ -1671,7 +1671,7 @@
       if (!isDragging) return
 
       // prevent screen from scrolling
-      evt.preventDefault()
+      // evt.preventDefault()
 
       updateDraggedPiece(evt.originalEvent.changedTouches[0].pageX,
         evt.originalEvent.changedTouches[0].pageY)

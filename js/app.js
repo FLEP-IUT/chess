@@ -10,8 +10,34 @@ let board = null;
 const game = new Chess();
 const $status = document.getElementById("status");
 let $history = document.getElementById("history");
+const colorTable = {
+  "w": {
+    enemy: "b",
+    label: "Blanc"
+  },
+  "b": {
+    enemy: "w",
+    label: "Noir"
+  }
+}
+
+const piecesTable = {
+  "p": "un pion",
+  "n": "un cavalier",
+  "b": "un fou",
+  "r": "une tour",
+  "q": "une dame",
+  "k": "un roi"
+}
+
+let moveDone = false;
+let changePlayerTurn = false;
+let lastPos;
+let newPos;
+let alreadyPlayed = false;
 
 function onDragStart(source, piece) {
+  if (alreadyPlayed) return false;
   if (game.game_over()) return false;
 
   if (
@@ -20,35 +46,35 @@ function onDragStart(source, piece) {
   ) {
     return false;
   }
-}
 
-function getLabelFromPieces(pieces) {
-  switch (pieces) {
-    case "p":
-      return "un pion";
-    case "n":
-      return "un cavalier";
-    case "b":
-      return "un fou";
-    case "r":
-      return "une tour";
-    case "q":
-      return "une reine";
-    case "k":
-      return "un roi";
+  const moves = game.moves({
+    square: source,
+    verbose: true,
+  });
+
+  // On return rien si nous n'avons aucun mouvement disponibles
+  if (moves.length === 0) return;
+
+  // Ici c'est qu'on a des cases à mettre en surbrillance
+  // On met la case ou le pion se trouve en surbrillance
+  selectableSquares(source);
+
+  // Et toutes celles ou l'on peut se déplacer
+  for (let i = 0; i < moves.length; i++) {
+    selectableSquares(moves[i].to);
   }
 }
 
+function getLabelFromPieces(pieces) {
+  return piecesTable[pieces];
+}
+
 function getEnemyFromLetter(letter) {
-  if (letter === "w") return "b";
-  if (letter === "b") return "w";
+  return colorTable[letter].enemy
 }
 
 function getColorFromLetter(letter) {
-  if (letter === "w") return "Blanc";
-  if (letter === "b") return "Noir";
-
-  return "";
+  return colorTable[letter].label;
 }
 
 function removeSelectableSquares() {
@@ -57,7 +83,6 @@ function removeSelectableSquares() {
   for (let square of squares) {
     square.style.border = "none";
   }
-  // $("#chessboard .square-55d63").css("border", "none");
 }
 
 function selectableSquares(_square) {
@@ -68,53 +93,66 @@ function selectableSquares(_square) {
   }
 }
 
+function moveDoneOk(undoB, confirmB) {
+  moveDone = false;
+  alreadyPlayed = false;
+  undoB.style.display = "none";
+  confirmB.style.display = "none";
+}
+
+window.onload = () => {
+  const undoButton = document.getElementById("undoButton");
+  const confirmButton = document.getElementById("confirmButton");
+  undoButton.addEventListener("click", () => {
+    console.log("undo button clicked");
+    if (newPos && lastPos) {
+      board.move(newPos+"-"+lastPos);
+      game.undo();
+      moveDoneOk(undoButton, confirmButton)
+    }
+  })
+
+  confirmButton.addEventListener("click", () => {
+    if (game.in_checkmate() || game.in_draw()) {
+      const newGameButton = document.getElementById("newGame");
+      newGameButton.style.display = "block";
+      newGameButton.addEventListener("click", () => {
+        board.start();
+        newGameButton.style.display = "none";
+      });
+    }
+
+    updateStatus();
+    changePlayerTurn = true;
+    board.flip();
+    moveDoneOk(undoButton, confirmButton)
+  })
+}
+
 function onDrop(source, target) {
-  const move = game.move({
-    from: source,
-    to: target,
-    promotion: "q", // NOTE: Tjrs mettre au rang de reine par simplicité ?
-  });
-
-
-
-  if (game.in_checkmate() || game.in_draw()) {
-    const newGameButton = document.getElementById("newGame");
-    newGameButton.style.display = "block";
-    newGameButton.addEventListener("click", () => {
-      board.start();
-      newGameButton.style.display = "none";
-    });
-  }
-
-  // Déplacement impossible
-  if (move === null) return "snapback";
-
-  updateStatus();
-  board.flip();
-}
-
-function onMouseoverSquare(square) {
-  // Récupère la liste des différents déplacements possibles
-  const moves = game.moves({
-    square: square,
-    verbose: true,
-  });
-
-  // On return rien si nous n'avons aucun mouvement disponibles
-  if (moves.length === 0) return;
-
-  // Ici c'est qu'on a des cases à mettre en surbrillance
-  // On met la case ou le pion se trouve en surbrillance
-  selectableSquares(square);
-
-  // Et toutes celles ou l'on peut se déplacer
-  for (let i = 0; i < moves.length; i++) {
-    selectableSquares(moves[i].to);
-  }
-}
-
-function onMouseoutSquare() {
+  newPos = target;
+  lastPos = source;
   removeSelectableSquares();
+  if (!alreadyPlayed) {
+    const move = game.move({from: source, to: target, promotion: "q"})
+    console.log(move);
+    if (move == null) {
+      alreadyPlayed = false;
+      return "snapback";
+    } else {
+      moveDone = true;
+    }
+
+    if (moveDone) {
+      const undoButton = document.getElementById("undoButton");
+      if (move["captured"] == undefined) {
+        undoButton.style.display = "block";
+      }
+
+      const confirmButton = document.getElementById("confirmButton");
+      confirmButton.style.display = "block";
+    }
+  }
 }
 
 function updateStatus() {
@@ -207,8 +245,6 @@ const config = {
   position: "start",
   onDragStart: onDragStart,
   onDrop: onDrop,
-  onMouseoutSquare: onMouseoutSquare,
-  onMouseoverSquare: onMouseoverSquare,
 };
 board = Chessboard("chessboard", config);
 

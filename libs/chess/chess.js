@@ -158,6 +158,7 @@ var Chess = function (fen) {
   var half_moves = 0
   var move_number = 1
   var history = []
+  let future = []
   var header = {}
   var comments = {}
 
@@ -984,10 +985,12 @@ var Chess = function (fen) {
       half_moves++
     }
 
-    if (turn === BLACK) {
-      move_number++
+    if (changePlayerTurn == true) {
+      if (turn === BLACK) {
+        move_number++
+      }
+      turn = swap_color(turn)
     }
-    turn = swap_color(turn)
   }
 
   function undo_move() {
@@ -1817,6 +1820,23 @@ var Chess = function (fen) {
       return turn
     },
 
+    back: function() {
+      var moves = this.history();
+      var tmp = new Chess();
+      var previous = moves.length-future.length-1;
+      for(var i=0;i<previous;i++) {
+        tmp.move(moves[i]);
+      }
+      var previous_fen = tmp.fen();
+      tmp.move(moves[previous]);
+      future.push(tmp.fen());
+      return previous_fen;
+    },
+
+    next: function() {
+      return future.pop();
+    },
+
     move: function (move, options) {
       /* The move function can be called with in the following parameters:
        *
@@ -1830,6 +1850,7 @@ var Chess = function (fen) {
 
       // allow the user to specify the sloppy move parser to work around over
       // disambiguation bugs in Fritz and Chessbase
+      alreadyPlayed = true;
       var sloppy =
         typeof options !== 'undefined' && 'sloppy' in options
           ? options.sloppy
