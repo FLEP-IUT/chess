@@ -5,6 +5,7 @@ ul:not(:empty) {
     border: 2px solid white;
     padding: 2px;
     border-radius: 10px;
+    background-color: blue; /*Temporaire*/
 }
 
 ul:not(:empty) li {
