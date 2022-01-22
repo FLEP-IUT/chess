@@ -104,7 +104,6 @@ window.onload = () => {
   const undoButton = document.getElementById("undoButton");
   const confirmButton = document.getElementById("confirmButton");
   undoButton.addEventListener("click", () => {
-    console.log("undo button clicked");
     if (newPos && lastPos) {
       board.move(newPos+"-"+lastPos);
       game.undo();
@@ -112,14 +111,23 @@ window.onload = () => {
     }
   })
 
+  const newGameButton = document.getElementById("newGame");
+  newGameButton.addEventListener("click", () => {
+    game.reset();
+    board.start();
+    changePlayerTurn = false;
+    alreadyPlayed = false;
+    moveDone = false;
+    if (board.orientation() === "black") {
+      board.flip();
+    }
+    newGameButton.style.display = "none";
+  });
+
   confirmButton.addEventListener("click", () => {
-    if (game.in_checkmate() || game.in_draw()) {
+    if (game.in_checkmate() || game.in_draw() || true) {
       const newGameButton = document.getElementById("newGame");
       newGameButton.style.display = "block";
-      newGameButton.addEventListener("click", () => {
-        board.start();
-        newGameButton.style.display = "none";
-      });
     }
 
     updateStatus();
@@ -135,7 +143,6 @@ function onDrop(source, target) {
   removeSelectableSquares();
   if (!alreadyPlayed) {
     const move = game.move({from: source, to: target, promotion: "q"})
-    console.log(move);
     if (move == null) {
       alreadyPlayed = false;
       return "snapback";
@@ -145,7 +152,7 @@ function onDrop(source, target) {
 
     if (moveDone) {
       const undoButton = document.getElementById("undoButton");
-      if (move["captured"] == undefined) {
+      if (move["captured"] === undefined) {
         undoButton.style.display = "block";
       }
 

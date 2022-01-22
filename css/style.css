@@ -1,3 +1,13 @@
 .mh-50 {
     max-height: 50%;
 }
+ul:not(:empty) {
+    border: 2px solid white;
+    padding: 2px;
+    background-color: black;
+    border-radius: 10px;
+}
+
+ul:not(:empty) li {
+    font-weight: bold;
+}
