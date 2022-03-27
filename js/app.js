@@ -271,5 +271,8 @@ const config = {
   onDrop: onDrop,
 };
 board = Chessboard("chessboard", config);
+$("#chessboad").on("scoll touchmove touchend touchstart contextmenu", function(e) {
+  e.preventDefault();
+})
 
 updateStatus();
