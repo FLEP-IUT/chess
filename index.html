@@ -16,7 +16,10 @@
     <div class="w-screen h-screen bg-gray-900 overflow-hidden">
         <div class="w-full h-full flex flex-row">
             <div class="w-1/2 h-full flex flex-col">
-                <div>
+                <p class="text-2xl text-white font-black text-center">Jeu d'échecs</p>
+                <p class="text-xs text-white italic text-center">Projet tutoré de Pierre Prevost et Constans Florence</p>
+
+                <div class="my-auto">
                     <div id="chessboard" class="m-auto" style="width: 85%;"></div>
                 </div>
                 <div class="flex flex-row">
@@ -30,11 +33,11 @@
                 <label class="text-2xl text-white font-black mx-auto">Historique de coup:</label>
                 <ul id="history" class="text-md text-white overflow-auto flex flex-col-reverse mx-auto mh-50"></ul>
                 <div class="flex flex-col">
-                    <div class="flex flex-col">
+                    <div class="flex flex-col hidden" id="takenPiecesDivWhite">
                         <p class="text-white text-xl">Pieces prises par le joueur blanc :</p>
                         <ul id="takenPiecesListWhite" class="flex flex-row"></ul>
                     </div>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col hidden" id="takenPiecesDivBlack">
                         <p class="text-white text-xl">Pieces prises par le joueur noir :</p>
                         <ul id="takenPiecesListBlack" class="flex flex-row"></ul>
                     </div>

@@ -168,6 +168,9 @@ function onDrop(source, target) {
         const takenPiecesList = document.getElementById("takenPiecesList"+getColorFromLetter(move.color));
         pieceToAdd.innerHTML = "<img src='img/chesspieces/wikipedia/"+colorCaptured+pieceCaptured.toUpperCase()+".png' />";
         takenPiecesList.appendChild(pieceToAdd);
+        if (takenPiecesList.getElementsByTagName("li").length > 0) {
+          document.getElementById("takenPiecesDiv"+getColorFromLetter(move.color)).style.display = "flex";
+        }
       }
 
       const confirmButton = document.getElementById("confirmButton");
